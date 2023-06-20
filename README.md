@@ -24,9 +24,9 @@ Uber/Lyft ride-sharing services support user sessions which are relatively long 
            * get current time: workflow.Now()
            * thread/goroutine sleep: workflow.Sleep()
            * do not iterate over map/HashMap, it is pseudo random
-           * do not use native Go.goroutine, Java.threads which are preemptively scheduled:
-               use runtime provided api:
-               * Go (runtime coroutine):
+           * do not use native Go.goroutine, Java.threads which are preemptively scheduled:  
+               use runtime provided api:  
+               * Go (runtime coroutine):  
                     workflow.Go(), workflow.Channel, workflow.Selector
                * Java: Async.function, Async.procedure
                          
@@ -70,7 +70,9 @@ Uber/Lyft ride-sharing services support user sessions which are relatively long 
 
 1. flyte: async task model:
     * workflow is set of async tasks connected through futures/promises into an execution graph/DAG;
-    * workflow functions are not code to run at runtime, but a DSL specification of tasks and runs at packaging/compile time; it compiles to the execution graph/DAG of tasks, encoded in protobuf/FlyteIDL;
+    * workflow functions are not code to run at runtime,  
+	but a DSL specification of tasks and runs at packaging/compile time;  
+	it compiles to the execution graph/DAG of tasks, encoded in protobuf/FlyteIDL;
     * workflow execution graphs are executed by cluster runtime service (FlytePropeller)
     * workflow/tasks state transitions are recorded in database,  
       optionally caching tasks' results to avoid duplicated calls
@@ -78,7 +80,8 @@ Uber/Lyft ride-sharing services support user sessions which are relatively long 
     * most data passed via task-function input-arguments/output-results
              
 2. cadence: durable/fault-oblivious computing:
-    * workflow functions are real code and control-flow to run at runtime, with a "durable" execution stack and env, maintained or rebuilt (after crash) through event sourcing (CQRS)
+    * workflow functions are real code and control-flow to run at runtime,  
+	with a "durable" execution stack and env, maintained or rebuilt (after crash) through event sourcing (CQRS)
     * workflows run in application instances/containers, driving itself.
     * cadence will not save workflow state, only state-changing events in DB:
       * activity-calls events(input-arguments/output-results)
@@ -91,7 +94,8 @@ Uber/Lyft ride-sharing services support user sessions which are relatively long 
 
 1. flyte:
     * custom container image creating tools:  
-        use python decorator @task, @workflow to annotate task functions and workflow functions; during project packaging / registration step, running "pyflyte package / register" will automatically generate docker image and workflow execution graph in protobuf directly from code.
+        use python decorator @task, @workflow to annotate task functions and workflow functions;  
+	during project packaging/registration step, running "pyflyte package/register" will automatically generate docker image and workflow execution graph in protobuf directly from code.
     * k8s integrated:
         * workflow/tasks registered with FlyteAdmin in cluster
         * workflow executions are launched as k8s CRD
@@ -122,5 +126,5 @@ Uber/Lyft ride-sharing services support user sessions which are relatively long 
     * more composable, working with different cluster/schedulers,
     * a toolkit, not a turn-key ready-for-end-user system,  
         users (or some else) need to know/use image building tool, cluster tools to build/deploy/start applications at proper nodes:  
-        eg. for integration with k8s:
+        eg. for integration with k8s:  
             write Helm-Charts with node affinity to launch application instances (with workflow, tasks) at proper nodes with required resources
