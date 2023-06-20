@@ -49,7 +49,7 @@ Uber/Lyft ride-sharing services support user sessions which are relatively long 
           so it can be replayed to achieve same output
       * fallible code are isolated into tasks/activities,  
 	  which can be guarded by timeout, retry, and hearbeating,  
-          whose invocations (arguments/results) can be saved to execution event history DB and can be recovered later to restore last known execution state.
+          whose invocations (arguments/results) can be saved to execution event history DB and can be recovered or replayed later to restore last known execution state.
            
     * common settings for fault-tolerance:  
         especially for task/activity with external interactions
