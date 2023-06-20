@@ -30,7 +30,7 @@ Uber/Lyft ride-sharing services support user sessions which are relatively long 
                     workflow.Go(), workflow.Channel, workflow.Selector
                * Java: Async.function, Async.procedure
                          
-3. tasks/activities:
+3. task/activity functions:
    * interact with external world, do real work:  
        call external apis, perform IO operations,..., which could fail
    * workflows invoke tasks/activities: passing arguments, return values  
