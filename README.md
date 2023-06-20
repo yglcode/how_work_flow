@@ -1,7 +1,7 @@
 ## How does work flow? : comparing workflow engines: flyte, cadence
 ###     *--- notes of study in progress*
 
-Uber/Lyft ride-sharing services support user sessions which are relatively long time compared to other web services such as web searching which typically require sub-second result response. For example in UberEat, from the time when user place order, then restaurant prepare, to the time when driver pick up and finally deliver, this whole process can take tens of minutes. To handle this kind of user sessions in simple and fault tolerant software is a challenge, for which Uber/Lyft created their own workflow systems as solution. This is a initial study note comparing uber's workflow engine: cadence (later temporal) and lyft's workflow engine: flyte. It is a study in progress.
+Uber/Lyft ride-sharing services support user sessions which are relatively long time compared to other web services (web search typically require sub-second result response). For example in UberEat, from the time when user place order, then restaurant prepare, to the time when driver pick up and finally deliver, this whole process can take tens of minutes. To handle this kind of user sessions in simple and fault tolerant software is a challenge, for which Uber/Lyft created their own workflow systems as solution. This is a initial study note comparing uber's workflow engine: cadence (later temporal) and lyft's workflow engine: flyte. It is a study in progress.
 
 ### 1. similar program design and abstractions:
 1. in both flyte and cadence, applications are designed as:
@@ -39,7 +39,7 @@ Uber/Lyft ride-sharing services support user sessions which are relatively long 
      isolation of fallible logic/code into a independent unit (failure domain) which can be managed separately:
        * unit for performing timeout, retry, heartbeat-monitor and
        * history record:  
-           whenever a task/activity complete successfully, its invocation arguments/results can be recorded in event history db
+           whenever a task/activity function call start or complete, its invocation arguments and results will be recorded in event history db
           + flyte: optional, caching results can avoid duplicated tasks calls
           + cadence: fundamental, necessary for workflows fault tolerance
 
@@ -48,8 +48,8 @@ Uber/Lyft ride-sharing services support user sessions which are relatively long 
       * deterministic, idempotent workflow functions  
           so it can be replayed to achieve same output
       * fallible code are isolated into tasks/activities,  
-	  which can be guarded by timeout, retry, and hearbeating,  
-          whose invocations (arguments/results) can be saved to execution event history DB and can be recovered or replayed later to restore last known execution state.
+	  which can be guarded by timeout, retry, and heartbeating,  
+          whose invocations (arguments/results) can be saved to execution event history DB and can be recovered or replayed later (without duplicated external calls/side-effects) to restore last known workflow execution state.
            
     * common settings for fault-tolerance:  
         especially for task/activity with external interactions
@@ -86,8 +86,8 @@ Uber/Lyft ride-sharing services support user sessions which are relatively long 
     * cadence will not save workflow state, only state-changing events in DB:
       * activity-calls events(input-arguments/output-results)
       * other events: coroutine scheduling, timer,...
-    * recover workflow state (stack,env) through restart and replay of events saved in event history DB (event sourcing/CQRS)
-    * good for workflows with heavy service state(?): deep-stack, threads,..  
+    * recover workflow state (stack, env) through restart and replay of events saved in event history DB (event sourcing/CQRS)
+    * good for workflows with heavy complex service state: deep-stack, threads,..  
         it is cheaper and can reach more identical state through replay? 
 
 ### 3. different execution model in cluster:
@@ -114,17 +114,16 @@ Uber/Lyft ride-sharing services support user sessions which are relatively long 
 2. cadence:
     * agnostic of clustering, composable with different clustering
     * use any existing tools to build container images
-    * unit of deployment: instances of applications,  
+    * unit of deployment: instances of applications(cadence workers),  
         which contain/register workflows and tasks
     * cadence service is not in control of executing workflow;  
-        cadence just start the workflow in proper application instances; workflow will drive itself.  
+        cadence just start the workflow in proper application/worker instances; workflow will drive itself.  
         -- distributed execution model
     * cadence is a toolkit with sole focus on durable-computing,  
-        its workflow/activity configs only specify setting for fault tolerance: retry, timeout, heartbeat...  
-    * users (or his CICD) responsible for scheduling / starting application instances:  
+        its workflow/activity configs only specify settings for fault tolerance: retry, timeout, heartbeat...  
+    * users (or his CICD) responsible for scheduling / deploying application/worker instances:  
         use cluster native facilities, deploy application instances to proper nodes with required resources: cpu, mem, gpu, node-types,...
-    * more composable, working with different cluster/schedulers,
-    * a toolkit, not a turn-key ready-for-end-user system,  
-        users (or some else) need to know/use image building tool, cluster tools to build/deploy/start applications at proper nodes:  
+    * a very flexible toolkit, composable with different cluster/schedulers;  
+        users use image building tool, cluster tools to build/deploy/start applications:  
         eg. for integration with k8s:  
-            write Helm-Charts with node affinity to launch application instances (with workflow, tasks) at proper nodes with required resources
+            write Helm Charts with node affinity to launch applications (with workflow, tasks) at proper nodes with required resources
