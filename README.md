@@ -1,9 +1,9 @@
-##How does work flow? : comparing workflow engines: flyte, cadence
+## How does work flow? : comparing workflow engines: flyte, cadence
 ###     *--- notes of study in progress*
 
 Uber/Lyft ride-sharing services support user sessions which are relatively long time compared to other web services such as web searching which typically require sub-second result response. For example in UberEat, from the time when user place order, then restaurant prepare, to the time when driver pick up and finally deliver, this whole process can take tens of minutes. To handle this kind of user sessions in simple and fault tolerant software is a challenge, for which Uber/Lyft created their own workflow systems as solution. This is a initial study note comparing uber's workflow engine: cadence (later temporal) and lyft's workflow engine: flyte. It is a study in progress.
 
-###1. similar program design and abstractions:
+### 1. similar program design and abstractions:
 1. in both flyte and cadence, applications are designed as:
    * workflow function (main logic/control flow), driving/calling
    * activities/tasks functions (performing specific work items)
@@ -66,7 +66,7 @@ Uber/Lyft ride-sharing services support user sessions which are relatively long 
        * cadence:
                 to resume after crash or eviction, restart the workflow at an available node, and replay recorded execution event history to restore last known state.
 
-###2. different computational model
+### 2. different computational model
 
 1. flyte: async task model:
     * workflow is set of async tasks connected through futures/promises into an execution graph/DAG;
@@ -87,7 +87,7 @@ Uber/Lyft ride-sharing services support user sessions which are relatively long 
     * good for workflows with heavy service state(?): deep-stack, threads,..
         it is cheaper and can reach more identical state through replay? 
 
-###3. different execution model in cluster:
+### 3. different execution model in cluster:
 
 1. flyte:
     * custom container image creating tools:
